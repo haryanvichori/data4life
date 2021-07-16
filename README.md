@@ -31,10 +31,10 @@
 
 
 
-## About NEO Exlorer
+## About
 
 
-This is a backend application which helps you search near earth objects with [RESTFUL APIs](https://www.smashingmagazine.com/2018/01/understanding-using-rest-api/)
+NEO Explorer is a backend application which helps you search near earth objects with [RESTFUL APIs](https://www.smashingmagazine.com/2018/01/understanding-using-rest-api/)
 
 ### Techstack 
 
@@ -126,7 +126,7 @@ environment variable.
    python main.py
    ```
 
-## Testing the app
+## Testing
 A wise engineer once said that `Something that is untested is broken.`
 Well not always but most often.
 
