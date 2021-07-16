@@ -22,6 +22,7 @@
     <li><a href="#About">About NEO Exlorer</a></li>
     <li><a href="#Techstack">Techstack</a></li>
     <li><a href="#System-architecture">System architecture</a></li>
+    <li><a href="#API-definitions">API definitions</a></li>
     <li><a href="#Getting-Started">Getting Started</a></li>
     <li><a href="#Testing">Testing</a></li>
     <li><a href="#Contact">Contact</a></li>
@@ -57,6 +58,197 @@ I have used mentioned stack
 ![plot](system_arch.jpg)
 
 
+## API definitions
+I have created six endpoints 
+1. "/" - Root, always returns OK
+2. "/probes/liveness" - liveness always returns OK
+3. "/probes/readiness" - Tests DB connection Returns OK is server is ready to serve traffic
+4. "/neo", methods=['POST'] - POST neo object
+5. "/neo/week", methods=['GET'] - Returns count of how many NEO will happen this week
+6. "/neo/next", methods=['GET'] - Returns next NEO
+
+**1. Root endpoint**
+----
+  Always returns OK response
+
+* **URL**
+
+  /
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+  None
+
+* **Data Params**
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** `OK`
+ 
+* **Error Response:**
+
+  No response from server
+
+
+**2. Liveness endpoint**
+----
+  Always returns OK response
+
+* **URL**
+
+  /probes/liveness
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+  None
+
+* **Data Params**
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** `OK`
+ 
+* **Error Response:**
+
+  No response from server
+
+
+**3. Readiness endpoint**
+----
+  Returns OK response if database is serving requests
+
+* **URL**
+
+  /probes/readiness
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+  None
+
+* **Data Params**
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** `OK`
+ 
+* **Error Response:**
+
+  No response from server
+
+
+**4. Near earth objects endpoint**
+----
+  Post data about near earth object using post request.
+
+* **URL**
+
+  /neo
+
+* **Method:**
+
+  `POST`
+  
+*  **URL Params**
+  None
+
+* **Data Params**
+ close_approach_date - date in str format
+ id - id in integer format
+ name - name of object in string format
+ nasa_jpl_url - url of object for more info
+ is_potentially_hazardous_asteroid - Boolean if asteroid is hazardous
+
+ * **Sample data** 
+  {
+   "close_approach_date":"2015-Sep-10 08:30",
+   "id":3532365,
+   "name":"(2010 MH1)",
+   "nasa_jpl_url":"http://ssd.jpl.nasa.gov/sbdb.cgi?sstr=3532365",
+   "is_potentially_hazardous_asteroid":false
+  }
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** `OK`
+ 
+* **Error Response:**
+
+   * **Code:** 500 <br />
+    **Content:** `IntegrityError`
+     
+
+**5. Count of Near earth objects next week endpoint**
+----
+  Get count of NEO next week.
+
+* **URL**
+
+  /neo/week
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+  None
+
+* **Data Params**
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** int
+ 
+* **Error Response:**
+
+   * **Code:** 404 <br />
+    **Content:** `no obejct found`
+     
+
+**6. Next Near earth object endpoint**
+----
+  Get count of NEO next week.
+
+* **URL**
+
+  /neo/next
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+  hazardous: boolean 
+
+* **Data Params**
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** neo object json
+ 
+* **Error Response:**
+
+   * **Code:** 404 <br />
+    **Content:** `no object found`
 ## Getting Started 
 ## Setting up Neo explorer server
 ### With docker 
@@ -137,7 +329,53 @@ Run tests with below command in project root and relax, pytest will do the job f
 pytest
 ```
 
-I have not written extensive test cases, I would to add more tests there.
+I have not written extensive test cases, I would to add more tests here.
+
+### Deployment 
+This application has been tested with deployment on kubernetes.
+I have tried with minikube setup on my mac system.
+Use [this link](https://minikube.sigs.k8s.io/docs/start/) to setup minikube cluster on your client machine.
+
+
+## Deployment with helm charts
+Helm claims "Helm is the best way to find, share, and use software built for Kubernetes."
+This was my first interaction with helm. 
+
+Please find helm chart files in deployment directory to deploy using helm.
+
+To deploy using helm, use this command inside deployment directory
+   ```shell
+  helm install neo data4life 
+   ```
+Above command should return results as below
+   ```shell
+NAME: neo
+LAST DEPLOYED: Fri Jul 16 23:33:10 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=data4life,app.kubernetes.io/instance=neo" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+   ```
+To confirm that deployment has actually happened 
+Use this command to check if pods actually got deployed 
+   ```shell
+   kubectl get pods
+   ```
+This command should response like below
+   ```shell
+  NAME                             READY   STATUS    RESTARTS   AGE
+  neo-data4life-5fff775d67-9pnl5   1/1     Running   0          30s
+  neo-data4life-5fff775d67-m5xfx   1/1     Running   0          30s
+   ```
+
+We received two parameters because we set 
+`replicaCount: 2` in `deployment/data4life/values.yaml`
+
 
 ## Contact
 
