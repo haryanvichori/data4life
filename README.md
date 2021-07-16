@@ -62,8 +62,8 @@ I have used mentioned stack
 I have created six endpoints 
 1. "/" - Root, always returns OK
 2. "/probes/liveness" - liveness always returns OK
-3. "/probes/readiness" - Tests DB connection Returns OK is server is ready to serve traffic
-4. "/neo", methods=['POST'] - POST neo object
+3. "/probes/readiness" - Tests DB connection Returns OK is server if ready to serve traffic
+4. "/neo", methods=['POST'] - Post neo object
 5. "/neo/week", methods=['GET'] - Returns count of how many NEO will happen this week
 6. "/neo/next", methods=['GET'] - Returns next NEO
 
